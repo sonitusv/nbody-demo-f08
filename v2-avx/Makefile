@@ -10,7 +10,9 @@ STD = -std08
 #########
 
 CMPFLAGS = -fopenmp
-OPTFLAGS = -O2
+OPTFLAGS = -O2 -xAVX
+#OPTFLAGS = -O2 -xCORE-AVX2
+#OPTFLAGS = -O2 -xCORE-AVX512 -qopt-zmm-usage=high
 REPFLAGS = -g -qopt-report=5 -qopt-report-filter="gsimulation.f90,306-388"
 
 FLAGS = $(STD) $(CMPFLAGS) $(OPTFLAGS) $(REPFLAGS)
