@@ -246,8 +246,8 @@ contains
         !-------------------------!
 
         !Simulation independent constants
-        real(real64), parameter :: G = 6.67259e-11         !gravitational constant
-        real(real64), parameter :: softeningSquared = 1e-3 !prevents explosion if the particles
+        real(real_t), parameter :: G = 6.67259e-11         !gravitational constant
+        real(real_t), parameter :: softeningSquared = 1e-3 !prevents explosion if the particles
                                                            !are close to each other
         !Simulation parameters
         integer(int32) :: nparts                           !number of particles
