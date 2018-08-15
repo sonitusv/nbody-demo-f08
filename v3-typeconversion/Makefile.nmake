@@ -1,0 +1,82 @@
+#########################
+# Compiler and standard #
+#########################
+
+CMP = ifort
+STD = /stand:f08
+
+#########
+# Flags #
+#########
+
+CMPFLAGS = /Qopenmp
+OPTFLAGS = /O2 /QxAVX
+#OPTFLAGS = /O2 /QxCORE-AVX2
+#OPTFLAGS = /O2 /QxCORE-AVX512 /Qopt-zmm-usage:high
+REPFLAGS = /debug /Qopt-report=5 /Qopt-report-filter="gsimulation.f90,306-388"
+
+FLAGS = $(STD) $(CMPFLAGS) $(OPTFLAGS) $(REPFLAGS)
+
+#########
+# Files #
+#########
+
+SRC = mt19937_64.f90 cputime.f90 types.f90 particle.f90 gsimulation.f90 main.f90
+OBJ = $(SRC:.f90=.obj)
+
+EXE = nbody.exe
+ADV = adv-v3-typeconversion
+
+#################
+# GENERAL RULES #
+#################
+
+all: clean $(EXE)
+
+run: $(EXE)
+	@echo.
+	@echo ### Running the CPU executable:
+	@$(EXE)
+
+$(EXE): $(OBJ)
+	@echo.
+	@echo ### Linking the CPU executable:
+	$(CMP) $(FLAGS) $(OBJ) /link /out:$(EXE)
+
+$(OBJ): $(SRC)
+	@echo.
+	@echo ### Compiling the source files for CPU:
+	$(CMP) $(FLAGS) /c $(?)
+
+asm: gsimulation.f90
+	@echo.
+	@echo ### Generating assembly code:
+	$(CMP) $(FLAGS) /S gsimulation.f90
+
+clean:
+	@echo.
+	@echo ### Removing temporary files:
+	del $(EXE) $(OBJ) *.mod *.asm *.optrpt *.pdb *.ilk
+
+#################
+# ADVISOR RULES #
+#################
+
+survey:
+	advixe-cl -collect survey -project-dir $(ADV) -- $(EXE)
+
+roofline:
+	advixe-cl -collect survey -project-dir $(ADV) -- $(EXE)
+	advixe-cl -collect tripcounts -flop -project-dir $(ADV) -- $(EXE)
+
+map:
+	advixe-cl -collect map -mark-up-list=1 -project-dir $(ADV) -- $(EXE)
+
+dependencies:
+	advixe-cl -collect dependencies -mark-up-list=1 -project-dir $(ADV) -- $(EXE) 1000 1
+
+open-gui:
+	start /B advixe-gui $(ADV)\$(ADV).advixeproj >nul 2>nul
+
+clean-results:
+	if exist $(ADV) rd /S /Q $(ADV)
