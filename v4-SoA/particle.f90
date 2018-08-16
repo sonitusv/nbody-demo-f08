@@ -30,10 +30,72 @@ module particle_mod
     public particle
 
     type particle
-        real(real_t) :: pos(3) = 0.0    !position
-        real(real_t) :: vel(3) = 0.0    !velocity
-        real(real_t) :: acc(3) = 0.0    !acceleration
-        real(real_t) :: mass   = 0.0    !mass
+        real(real_t), allocatable :: pos_x(:)    !position
+        real(real_t), allocatable :: pos_y(:)
+        real(real_t), allocatable :: pos_z(:)
+
+        real(real_t), allocatable :: vel_x(:)    !velocity
+        real(real_t), allocatable :: vel_y(:)
+        real(real_t), allocatable :: vel_z(:)
+
+        real(real_t), allocatable :: acc_x(:)    !acceleration
+        real(real_t), allocatable :: acc_y(:)
+        real(real_t), allocatable :: acc_z(:)
+
+        real(real_t), allocatable :: mass(:)     !mass
+
+        contains
+            procedure, public :: alloc
+            procedure, public :: dealloc
     end type
+
+contains
+
+    subroutine alloc(self, nparts)
+
+        implicit none
+
+        class(particle), intent(inout) :: self
+        integer(int32),  intent(in)    :: nparts
+
+        call self%dealloc()
+
+        allocate(self%pos_x(nparts))
+        allocate(self%pos_y(nparts))
+        allocate(self%pos_z(nparts))
+
+        allocate(self%vel_x(nparts))
+        allocate(self%vel_y(nparts))
+        allocate(self%vel_z(nparts))
+
+        allocate(self%acc_x(nparts))
+        allocate(self%acc_y(nparts))
+        allocate(self%acc_z(nparts))
+
+        allocate(self%mass(nparts))
+
+    end subroutine
+
+    subroutine dealloc(self)
+
+        implicit none
+
+        class(particle), intent(inout) :: self
+
+        if (allocated(self%pos_x)) deallocate(self%pos_x)
+        if (allocated(self%pos_y)) deallocate(self%pos_y)
+        if (allocated(self%pos_z)) deallocate(self%pos_z)
+
+        if (allocated(self%vel_x)) deallocate(self%vel_x)
+        if (allocated(self%vel_y)) deallocate(self%vel_y)
+        if (allocated(self%vel_z)) deallocate(self%vel_z)
+
+        if (allocated(self%acc_x)) deallocate(self%acc_x)
+        if (allocated(self%acc_y)) deallocate(self%acc_y)
+        if (allocated(self%acc_z)) deallocate(self%acc_z)
+
+        if (allocated(self%mass)) deallocate(self%mass)
+
+    end subroutine
 
 end module

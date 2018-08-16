@@ -34,7 +34,7 @@ module gsimulation_mod
 
     type gsimulation
 
-        type(particle), allocatable :: particles(:)    !array of particles
+        type(particle), allocatable :: particles       !array of particles
 
         !Simulation parameters
         integer(int32) :: nparts      = 16000          !number of particles
@@ -84,7 +84,8 @@ contains
 
         class(gsimulation), intent(inout) :: self
 
-        if (.not. allocated(self%particles)) allocate(self%particles(self%nparts))
+        if (.not. allocated(self%particles)) allocate(self%particles)
+        call self%particles%alloc(self%nparts)
 
     end subroutine
 
@@ -94,6 +95,7 @@ contains
 
         class(gsimulation), intent(inout) :: self
 
+        call self%particles%dealloc()
         if (allocated(self%particles)) deallocate(self%particles)
 
     end subroutine
@@ -115,35 +117,35 @@ contains
 
             !Initializes particles position
             call random_seed(seed)    !intent(inout) is required by the function
-            do i = 1, size(self%particles)
-                call random_number(self%particles(i)%pos(1))
-                call random_number(self%particles(i)%pos(2))
-                call random_number(self%particles(i)%pos(3))
+            do i = 1, self%nparts
+                call random_number(self%particles%pos_x(i))
+                call random_number(self%particles%pos_y(i))
+                call random_number(self%particles%pos_z(i))
             end do
 
             !Initializes particles velocity
             call random_seed(seed)    !intent(inout) is required by the function
-            do i = 1, size(self%particles)
-                call random_number(self%particles(i)%vel(1))
-                call random_number(self%particles(i)%vel(2))
-                call random_number(self%particles(i)%vel(3))
-                self%particles(i)%vel(1) = (self%particles(i)%vel(1)*2 - 1) * 1.0e-3
-                self%particles(i)%vel(2) = (self%particles(i)%vel(2)*2 - 1) * 1.0e-3
-                self%particles(i)%vel(3) = (self%particles(i)%vel(3)*2 - 1) * 1.0e-3
+            do i = 1, self%nparts
+                call random_number(self%particles%vel_x(i))
+                call random_number(self%particles%vel_y(i))
+                call random_number(self%particles%vel_z(i))
+                self%particles%vel_x(i) = (self%particles%vel_x(i)*2 - 1) * 1.0e-3
+                self%particles%vel_y(i) = (self%particles%vel_y(i)*2 - 1) * 1.0e-3
+                self%particles%vel_z(i) = (self%particles%vel_z(i)*2 - 1) * 1.0e-3
             end do
 
             !Initializes particles acceleration
-            do i = 1, size(self%particles)
-                 self%particles(i)%acc(1) = 0.
-                 self%particles(i)%acc(2) = 0.
-                 self%particles(i)%acc(3) = 0.
+            do i = 1, self%nparts
+                 self%particles%acc_x(i) = 0.
+                 self%particles%acc_y(i) = 0.
+                 self%particles%acc_z(i) = 0.
             end do
 
             !Initializes particles mass
             call random_seed(seed)    !intent(inout) is required by the function
-            do i = 1, size(self%particles)
-                call random_number(self%particles(i)%mass)
-                self%particles(i)%mass = self%particles(i)%mass * self%nparts
+            do i = 1, self%nparts
+                call random_number(self%particles%mass(i))
+                self%particles%mass(i) = self%particles%mass(i) * self%nparts
             end do
 
         end if
@@ -163,31 +165,31 @@ contains
 
             !Initializes particles position
             call init_genrand64(seed)
-            do i = 1, size(self%particles)
-                self%particles(i)%pos(1) = real(genrand64_real2(), real_t)
-                self%particles(i)%pos(2) = real(genrand64_real2(), real_t)
-                self%particles(i)%pos(3) = real(genrand64_real2(), real_t)
+            do i = 1, self%nparts
+                self%particles%pos_x(i) = real(genrand64_real2(), real_t)
+                self%particles%pos_y(i) = real(genrand64_real2(), real_t)
+                self%particles%pos_z(i) = real(genrand64_real2(), real_t)
             end do
 
             !Initializes particles velocity
             call init_genrand64(seed)
-            do i = 1, size(self%particles)
-                self%particles(i)%vel(1) = (real(genrand64_real2(), real_t) * 2 - 1) * 1.0e-3
-                self%particles(i)%vel(2) = (real(genrand64_real2(), real_t) * 2 - 1) * 1.0e-3
-                self%particles(i)%vel(3) = (real(genrand64_real2(), real_t) * 2 - 1) * 1.0e-3
+            do i = 1, self%nparts
+                self%particles%vel_x(i) = (real(genrand64_real2(), real_t) * 2 - 1) * 1.0e-3
+                self%particles%vel_y(i) = (real(genrand64_real2(), real_t) * 2 - 1) * 1.0e-3
+                self%particles%vel_z(i) = (real(genrand64_real2(), real_t) * 2 - 1) * 1.0e-3
             end do
 
             !Initializes particles acceleration
-            do i = 1, size(self%particles)
-                self%particles(i)%acc(1) = 0.
-                self%particles(i)%acc(2) = 0.
-                self%particles(i)%acc(3) = 0.
+            do i = 1, self%nparts
+                self%particles%acc_x(i) = 0.
+                self%particles%acc_y(i) = 0.
+                self%particles%acc_z(i) = 0.
             end do
 
             !Initializes particles mass
             call init_genrand64(seed)
-            do i = 1, size(self%particles)
-                self%particles(i)%mass = real(genrand64_real2(), real_t) * self%nparts * 0.9911
+            do i = 1, self%nparts
+                self%particles%mass(i) = real(genrand64_real2(), real_t) * self%nparts * 0.9911
             end do
 
         end if
@@ -314,9 +316,9 @@ contains
             do i = 1, nparts
 
                 !Resets acceleration
-                self%particles(i)%acc(1) = 0.
-                self%particles(i)%acc(2) = 0.
-                self%particles(i)%acc(3) = 0.
+                self%particles%acc_x(i) = 0.
+                self%particles%acc_y(i) = 0.
+                self%particles%acc_z(i) = 0.
 
                 !For given particle
                 !computes the distance to other particles
@@ -325,23 +327,23 @@ contains
                 do j = 1, nparts
 
                     !Computes the distance
-                    dx = self%particles(j)%pos(1) - self%particles(i)%pos(1)              !1flop
-                    dy = self%particles(j)%pos(2) - self%particles(i)%pos(2)              !1flop
-                    dz = self%particles(j)%pos(3) - self%particles(i)%pos(3)              !1flop
+                    dx = self%particles%pos_x(j) - self%particles%pos_x(i)                !1flop
+                    dy = self%particles%pos_y(j) - self%particles%pos_y(i)                !1flop
+                    dz = self%particles%pos_z(j) - self%particles%pos_z(i)                !1flop
 
                     distanceSquared = dx*dx + dy*dy + dz*dz + softeningSquared            !6flops
                     distanceInv     = 1.0 / sqrt(distanceSquared)                         !1div+1sqrt
 
                     !Updates acceleration
-                    self%particles(i)%acc(1) = self%particles(i)%acc(1) +            &
-                                               G * self%particles(j)%mass * dx *     &
-                                               distanceInv * distanceInv * distanceInv    !6flops
-                    self%particles(i)%acc(2) = self%particles(i)%acc(2) +            &
-                                               G * self%particles(j)%mass * dy *     &
-                                               distanceInv * distanceInv * distanceInv    !6flops
-                    self%particles(i)%acc(3) = self%particles(i)%acc(3) +            &
-                                               G * self%particles(j)%mass * dz *     &
-                                               distanceInv * distanceInv * distanceInv    !6flops
+                    self%particles%acc_x(i) = self%particles%acc_x(i) +             &
+                                              G * self%particles%mass(j) * dx *     &
+                                              distanceInv * distanceInv * distanceInv     !6flops
+                    self%particles%acc_y(i) = self%particles%acc_y(i) +             &
+                                              G * self%particles%mass(j) * dy *     &
+                                              distanceInv * distanceInv * distanceInv     !6flops
+                    self%particles%acc_z(i) = self%particles%acc_z(i) +             &
+                                              G * self%particles%mass(j) * dz *     &
+                                              distanceInv * distanceInv * distanceInv     !6flops
                 end do
             end do
 
@@ -352,20 +354,20 @@ contains
             do i = 1, nparts
 
                 !Updates velocity for given particle
-                self%particles(i)%vel(1) = self%particles(i)%vel(1) + self%particles(i)%acc(1) * dt    !2flops
-                self%particles(i)%vel(2) = self%particles(i)%vel(2) + self%particles(i)%acc(2) * dt    !2flops
-                self%particles(i)%vel(3) = self%particles(i)%vel(3) + self%particles(i)%acc(3) * dt    !2flops
+                self%particles%vel_x(i) = self%particles%vel_x(i) + self%particles%acc_x(i) * dt       !2flops
+                self%particles%vel_y(i) = self%particles%vel_y(i) + self%particles%acc_y(i) * dt       !2flops
+                self%particles%vel_z(i) = self%particles%vel_z(i) + self%particles%acc_z(i) * dt       !2flops
 
                 !Updates position for given particle
-                self%particles(i)%pos(1) = self%particles(i)%pos(1) + self%particles(i)%vel(1) * dt    !2flops
-                self%particles(i)%pos(2) = self%particles(i)%pos(2) + self%particles(i)%vel(2) * dt    !2flops
-                self%particles(i)%pos(3) = self%particles(i)%pos(3) + self%particles(i)%vel(3) * dt    !2flops
+                self%particles%pos_x(i) = self%particles%pos_x(i) + self%particles%vel_x(i) * dt       !2flops
+                self%particles%pos_y(i) = self%particles%pos_y(i) + self%particles%vel_y(i) * dt       !2flops
+                self%particles%pos_z(i) = self%particles%pos_z(i) + self%particles%vel_z(i) * dt       !2flops
 
                 !Adds particle kinetic energy to step kinetic energy
                 step_kenergy = step_kenergy + &                                                        !7flops
-                               self%particles(i)%mass * (self%particles(i)%vel(1) * self%particles(i)%vel(1) + &
-                                                         self%particles(i)%vel(2) * self%particles(i)%vel(2) + &
-                                                         self%particles(i)%vel(3) * self%particles(i)%vel(3))
+                               self%particles%mass(i) * (self%particles%vel_x(i) * self%particles%vel_x(i) + &
+                                                         self%particles%vel_y(i) * self%particles%vel_y(i) + &
+                                                         self%particles%vel_z(i) * self%particles%vel_z(i))
             end do
 
             !Kinetic energy at the current step
