@@ -9,7 +9,7 @@ STD = /stand:f08
 # Flags #
 #########
 
-CMPFLAGS = /Qopenmp
+CMPFLAGS = /Qopenmp /Qdiag-disable:7025,6477
 OPTFLAGS = /O2 /QxAVX
 #OPTFLAGS = /O2 /QxCORE-AVX2
 #OPTFLAGS = /O2 /QxCORE-AVX512 /Qopt-zmm-usage:high

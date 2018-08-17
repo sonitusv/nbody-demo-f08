@@ -44,6 +44,17 @@ module particle_mod
 
         real(real_t), allocatable :: mass(:)     !mass
 
+        !dir$ attributes align:64 :: pos_x
+        !dir$ attributes align:64 :: pos_y
+        !dir$ attributes align:64 :: pos_z
+        !dir$ attributes align:64 :: vel_x
+        !dir$ attributes align:64 :: vel_y
+        !dir$ attributes align:64 :: vel_z
+        !dir$ attributes align:64 :: acc_x
+        !dir$ attributes align:64 :: acc_y
+        !dir$ attributes align:64 :: acc_z
+        !dir$ attributes align:64 :: mass
+
         contains
             procedure, public :: alloc
             procedure, public :: dealloc

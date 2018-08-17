@@ -313,6 +313,7 @@ contains
             step_time_start = get_time_in_seconds()
 
             !Iterates over all particles
+            !dir$ vector aligned
             do i = 1, nparts
 
                 !Resets acceleration
@@ -324,6 +325,7 @@ contains
                 !computes the distance to other particles
                 !and updates acceleration
                 !using Newton's law of gravitation
+                !dir$ vector aligned
                 do j = 1, nparts
 
                     !Computes the distance
@@ -351,6 +353,7 @@ contains
             step_kenergy = 0.
 
             !Iterates over all particles
+            !dir$ vector aligned
             do i = 1, nparts
 
                 !Updates velocity for given particle

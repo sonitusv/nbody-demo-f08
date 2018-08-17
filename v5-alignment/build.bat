@@ -15,7 +15,7 @@ set STD=/stand:f08
 
 @echo off
 
-set CMPFLAGS=/Qopenmp
+set CMPFLAGS=/Qopenmp /Qdiag-disable:7025,6477
 set OPTFLAGS=/O2 /QxAVX
 ::set OPTFLAGS=/O2 /QxCORE-AVX2
 ::set OPTFLAGS=/O2 /QxCORE-AVX512 /Qopt-zmm-usage:high
