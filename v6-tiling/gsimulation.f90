@@ -270,10 +270,15 @@ contains
         real(real64)   :: gflops_dev                       !gflops deviation
 
         !Temporary variables
-        integer(int32) :: step, i, j                       !vars used for iteration
+        integer(int32) :: step, i, j, itile                !vars used for iteration
         real(real_t)   :: dx, dy, dz                       !xyz distance
         real(real_t)   :: distanceSquared                  !squared distance
         real(real_t)   :: distanceInv                      !1/distance
+
+        integer(int32), parameter :: tile_size = 8         !tile size
+        real(real_t)              :: acc_x(tile_size)      !tile for x-axis acceleration
+        real(real_t)              :: acc_y(tile_size)      !tile for y-axis acceleration
+        real(real_t)              :: acc_z(tile_size)      !tile for z-axis acceleration
 
         !----------------------------!
         !- Variables initialization -!
@@ -314,12 +319,15 @@ contains
 
             !Iterates over all particles
             !dir$ vector aligned
-            do i = 1, nparts
+            do itile = 1, nparts, tile_size
 
                 !Resets acceleration
-                self%particles%acc_x(i) = 0.
-                self%particles%acc_y(i) = 0.
-                self%particles%acc_z(i) = 0.
+                !dir$ vector aligned
+                do i = itile, itile+tile_size-1
+                    acc_x(i-itile+1) = 0.
+                    acc_y(i-itile+1) = 0.
+                    acc_z(i-itile+1) = 0.
+                end do
 
                 !For given particle
                 !computes the distance to other particles
@@ -328,25 +336,37 @@ contains
                 !dir$ vector aligned
                 do j = 1, nparts
 
-                    !Computes the distance
-                    dx = self%particles%pos_x(j) - self%particles%pos_x(i)                !1flop
-                    dy = self%particles%pos_y(j) - self%particles%pos_y(i)                !1flop
-                    dz = self%particles%pos_z(j) - self%particles%pos_z(i)                !1flop
+                    !dir$ vector aligned
+                    do i = itile, itile+tile_size-1
 
-                    distanceSquared = dx*dx + dy*dy + dz*dz + softeningSquared            !6flops
-                    distanceInv     = 1.0 / sqrt(distanceSquared)                         !1div+1sqrt
+                        !Computes the distance
+                        dx = self%particles%pos_x(j) - self%particles%pos_x(i)        !1flop
+                        dy = self%particles%pos_y(j) - self%particles%pos_y(i)        !1flop
+                        dz = self%particles%pos_z(j) - self%particles%pos_z(i)        !1flop
 
-                    !Updates acceleration
-                    self%particles%acc_x(i) = self%particles%acc_x(i) +             &
-                                              G * self%particles%mass(j) * dx *     &
-                                              distanceInv * distanceInv * distanceInv     !6flops
-                    self%particles%acc_y(i) = self%particles%acc_y(i) +             &
-                                              G * self%particles%mass(j) * dy *     &
-                                              distanceInv * distanceInv * distanceInv     !6flops
-                    self%particles%acc_z(i) = self%particles%acc_z(i) +             &
-                                              G * self%particles%mass(j) * dz *     &
-                                              distanceInv * distanceInv * distanceInv     !6flops
+                        distanceSquared = dx*dx + dy*dy + dz*dz + softeningSquared    !6flops
+                        distanceInv     = 1.0 / sqrt(distanceSquared)                 !1div+1sqrt
+
+                        !Updates acceleration
+                        acc_x(i-itile+1) = acc_x(i-itile+1) +                    &
+                                           G * self%particles%mass(j) * dx *     &
+                                           distanceInv * distanceInv * distanceInv    !6flops
+                        acc_y(i-itile+1) = acc_y(i-itile+1) +                    &
+                                           G * self%particles%mass(j) * dy *     &
+                                           distanceInv * distanceInv * distanceInv    !6flops
+                        acc_z(i-itile+1) = acc_z(i-itile+1) +                    &
+                                           G * self%particles%mass(j) * dz *     &
+                                           distanceInv * distanceInv * distanceInv    !6flops
+                    end do
                 end do
+
+                !dir$ vector aligned
+                do i = itile, itile+tile_size-1
+                    self%particles%acc_x(i) = acc_x(i-itile+1)
+                    self%particles%acc_y(i) = acc_y(i-itile+1)
+                    self%particles%acc_z(i) = acc_z(i-itile+1)
+                end do
+
             end do
 
             !Resets kinetic energy for given iteration step
