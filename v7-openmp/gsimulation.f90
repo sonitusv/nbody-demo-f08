@@ -319,6 +319,7 @@ contains
 
             !Iterates over all particles
             !dir$ vector aligned
+            !$omp parallel do private(dx, dy, dz, distanceSquared, distanceInv, acc_x, acc_y, acc_z)
             do itile = 1, nparts, tile_size
 
                 !Resets acceleration
@@ -374,6 +375,7 @@ contains
 
             !Iterates over all particles
             !dir$ vector aligned
+            !$omp parallel do reduction(+:step_kenergy)
             do i = 1, nparts
 
                 !Updates velocity for given particle
