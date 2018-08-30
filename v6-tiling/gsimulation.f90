@@ -340,23 +340,25 @@ contains
                     do i = itile, itile+tile_size-1
 
                         !Computes the distance
-                        dx = self%particles%pos_x(j) - self%particles%pos_x(i)        !1flop
-                        dy = self%particles%pos_y(j) - self%particles%pos_y(i)        !1flop
-                        dz = self%particles%pos_z(j) - self%particles%pos_z(i)        !1flop
-
-                        distanceSquared = dx*dx + dy*dy + dz*dz + softeningSquared    !6flops
-                        distanceInv     = 1.0 / sqrt(distanceSquared)                 !1div+1sqrt
+                        distanceSquared = (self%particles%pos_x(j) - self%particles%pos_x(i))**2 + &
+                                          (self%particles%pos_y(j) - self%particles%pos_y(i))**2 + &
+                                          (self%particles%pos_z(j) - self%particles%pos_z(i))**2 + &
+                                          softeningSquared                                             !9flops
+                        distanceInv     = 1.0 / sqrt(distanceSquared)                                  !1div+1sqrt
 
                         !Updates acceleration
-                        acc_x(i-itile+1) = acc_x(i-itile+1) +                    &
-                                           G * self%particles%mass(j) * dx *     &
-                                           distanceInv * distanceInv * distanceInv    !6flops
-                        acc_y(i-itile+1) = acc_y(i-itile+1) +                    &
-                                           G * self%particles%mass(j) * dy *     &
-                                           distanceInv * distanceInv * distanceInv    !6flops
-                        acc_z(i-itile+1) = acc_z(i-itile+1) +                    &
-                                           G * self%particles%mass(j) * dz *     &
-                                           distanceInv * distanceInv * distanceInv    !6flops
+                        acc_x(i-itile+1) = acc_x(i-itile+1) +                                    &
+                                           G * self%particles%mass(j) *                          &
+                                           (self%particles%pos_x(j) - self%particles%pos_x(i)) * &
+                                           distanceInv * distanceInv * distanceInv                     !6flops
+                        acc_y(i-itile+1) = acc_y(i-itile+1) +                                    &
+                                           G * self%particles%mass(j) *                          &
+                                           (self%particles%pos_y(j) - self%particles%pos_y(i)) * &
+                                           distanceInv * distanceInv * distanceInv                     !6flops
+                        acc_z(i-itile+1) = acc_z(i-itile+1) +                                    &
+                                           G * self%particles%mass(j) *                          &
+                                           (self%particles%pos_z(j) - self%particles%pos_z(i)) * &
+                                           distanceInv * distanceInv * distanceInv                     !6flops
                     end do
                 end do
 

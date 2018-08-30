@@ -19,7 +19,7 @@ set CMPFLAGS=/Qopenmp /Qdiag-disable:7025,6477
 set OPTFLAGS=/O2 /QxAVX
 ::set OPTFLAGS=/O2 /QxCORE-AVX2
 ::set OPTFLAGS=/O2 /QxCORE-AVX512 /Qopt-zmm-usage:high
-set REPFLAGS=/debug /Qopt-report=5 /Qopt-report-filter="gsimulation.f90,313-413"
+set REPFLAGS=/debug /Qopt-report=5 /Qopt-report-filter="gsimulation.f90,313-415"
 
 set FLAGS=%STD% %CMPFLAGS% %OPTFLAGS% %REPFLAGS%
 

@@ -13,7 +13,7 @@ CMPFLAGS = /Qopenmp /Qdiag-disable:7025,6477
 OPTFLAGS = /O2 /QxAVX
 #OPTFLAGS = /O2 /QxCORE-AVX2
 #OPTFLAGS = /O2 /QxCORE-AVX512 /Qopt-zmm-usage:high
-REPFLAGS = /debug /Qopt-report=5 /Qopt-report-filter="gsimulation.f90,313-413"
+REPFLAGS = /debug /Qopt-report=5 /Qopt-report-filter="gsimulation.f90,313-417"
 
 FLAGS = $(STD) $(CMPFLAGS) $(OPTFLAGS) $(REPFLAGS)
 
