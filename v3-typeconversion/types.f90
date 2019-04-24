@@ -1,23 +1,15 @@
-!---------------------------------------------------------------------------!
-!                                                                           !
-!   This file is part of N-Body Simulation Demo.                            !
-!                                                                           !
-!   Copyright (C) 2018, Aleksei Abliazov <aleksei.abliazov@gmail.com>       !
-!                                                                           !
-!   This program is free software: you can redistribute it and/or modify    !
-!   it under the terms of the GNU General Public License as published by    !
-!   the Free Software Foundation, either version 3 of the License, or       !
-!   (at your option) any later version.                                     !
-!                                                                           !
-!   This program is distributed in the hope that it will be useful,         !
-!   but WITHOUT ANY WARRANTY; without even the implied warranty of          !
-!   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the            !
-!   GNU General Public License for more details.                            !
-!                                                                           !
-!   You should have received a copy of the GNU General Public License       !
-!   along with this program. If not, see <https://www.gnu.org/licenses/>.   !
-!                                                                           !
-!---------------------------------------------------------------------------!
+!==============================================================
+!
+! SAMPLE SOURCE CODE - SUBJECT TO THE TERMS OF SAMPLE CODE LICENSE AGREEMENT,
+! http://software.intel.com/en-us/articles/intel-sample-source-code-license-agreement/
+!
+! Copyright 2018 Intel Corporation
+!
+! THIS FILE IS PROVIDED "AS IS" WITH NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT
+! NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+! PURPOSE, NON-INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS.
+!
+! =============================================================
 
 module types_mod
 
